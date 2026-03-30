@@ -61,13 +61,20 @@ echo "Migrations completed!"
 # Create upload directory
 mkdir -p "${UPLOAD_DIR:-/app/uploads}"
 
-# Determine number of workers
-WORKERS=${UVICORN_WORKERS:-1}
+# If a command was passed as arguments, run that instead of uvicorn
+# This allows docker-compose to override the command for celery workers/beat
+if [ $# -gt 0 ]; then
+    echo "Running custom command: $@"
+    exec "$@"
+else
+    # Determine number of workers
+    WORKERS=${UVICORN_WORKERS:-1}
 
-echo "Starting uvicorn with $WORKERS worker(s)..."
-exec uvicorn app.main:app \
-    --host 0.0.0.0 \
-    --port 8000 \
-    --workers "$WORKERS" \
-    --log-level "${LOG_LEVEL:-info}" \
-    --access-log
+    echo "Starting uvicorn with $WORKERS worker(s)..."
+    exec uvicorn app.main:app \
+        --host 0.0.0.0 \
+        --port 8000 \
+        --workers "$WORKERS" \
+        --log-level "${LOG_LEVEL:-info}" \
+        --access-log
+fi
