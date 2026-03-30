@@ -1,0 +1,18 @@
+[
+  {
+    "document_id": "550e8400-e29b-41d4-a716-446655440000",
+    "filename": "sample-report.txt",
+    "file_type": "text/plain",
+    "file_size": 1234,
+    "status": "completed",
+    "processed_at": "2024-01-15T10:30:00Z",
+    "result": {
+      "title": "Annual Technology Report 2024",
+      "category": "Report",
+      "summary": "This report provides a comprehensive overview of technology initiatives undertaken during the fiscal year 2024. Key achievements include the successful migration to cloud infrastructure...",
+      "keywords": ["technology", "cloud", "migration", "security", "infrastructure", "engineering"],
+      "is_finalized": true,
+      "finalized_at": "2024-01-15T11:00:00Z"
+    }
+  }
+]

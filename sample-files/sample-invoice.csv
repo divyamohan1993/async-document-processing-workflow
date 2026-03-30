@@ -1,0 +1,9 @@
+Invoice Number,Date,Customer,Item,Quantity,Unit Price,Total
+INV-2024-001,2024-01-15,Acme Corp,Cloud Hosting (Monthly),1,2500.00,2500.00
+INV-2024-001,2024-01-15,Acme Corp,SSL Certificate,2,150.00,300.00
+INV-2024-001,2024-01-15,Acme Corp,Technical Support (Hours),10,125.00,1250.00
+INV-2024-002,2024-02-01,TechStart Inc,API Gateway License,1,5000.00,5000.00
+INV-2024-002,2024-02-01,TechStart Inc,Data Storage (TB),5,200.00,1000.00
+INV-2024-003,2024-02-15,GlobalFinance Ltd,Security Audit,1,15000.00,15000.00
+INV-2024-003,2024-02-15,GlobalFinance Ltd,Penetration Testing,1,8000.00,8000.00
+INV-2024-003,2024-02-15,GlobalFinance Ltd,Compliance Review,1,3000.00,3000.00

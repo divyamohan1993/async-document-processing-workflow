@@ -1,0 +1,118 @@
+version: '3.9'
+
+# Development overrides - use with:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  db:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres_dev_2024
+
+  redis:
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass redis_dev_2024 --maxmemory 128mb --maxmemory-policy allkeys-lru
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    environment:
+      - DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres_dev_2024@db:5432/docprocess
+      - DATABASE_SYNC_URL=postgresql+psycopg2://postgres:postgres_dev_2024@db:5432/docprocess
+      - REDIS_URL=redis://:redis_dev_2024@redis:6379/0
+      - CELERY_BROKER_URL=redis://:redis_dev_2024@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:redis_dev_2024@redis:6379/1
+      - SECRET_KEY=dev-secret-key-not-for-production
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:8000,http://localhost
+      - UPLOAD_DIR=/app/uploads
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/tests:/app/tests
+      - upload_data:/app/uploads
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  celery_worker:
+    environment:
+      - DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres_dev_2024@db:5432/docprocess
+      - DATABASE_SYNC_URL=postgresql+psycopg2://postgres:postgres_dev_2024@db:5432/docprocess
+      - REDIS_URL=redis://:redis_dev_2024@redis:6379/0
+      - CELERY_BROKER_URL=redis://:redis_dev_2024@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:redis_dev_2024@redis:6379/1
+      - SECRET_KEY=dev-secret-key-not-for-production
+    volumes:
+      - ./backend/app:/app/app
+      - upload_data:/app/uploads
+    command: celery -A app.workers.celery_app worker --loglevel=debug --concurrency=2 -Q default,documents
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  celery_beat:
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres_dev_2024@db:5432/docprocess
+      - DATABASE_SYNC_URL=postgresql+psycopg2://postgres:postgres_dev_2024@db:5432/docprocess
+      - REDIS_URL=redis://:redis_dev_2024@redis:6379/0
+      - CELERY_BROKER_URL=redis://:redis_dev_2024@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:redis_dev_2024@redis:6379/1
+      - SECRET_KEY=dev-secret-key-not-for-production
+    volumes:
+      - ./backend/app:/app/app
+
+  flower:
+    environment:
+      - CELERY_BROKER_URL=redis://:redis_dev_2024@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:redis_dev_2024@redis:6379/1
+    ports:
+      - "5555:5555"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost/api/v1
+      - NODE_ENV=development
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  nginx:
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    ports:
+      - "80:80"
+    # No 443 in dev since we don't have SSL certs

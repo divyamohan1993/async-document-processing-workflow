@@ -1,0 +1,40 @@
+{
+  "document_type": "technical_specification",
+  "title": "Microservices Architecture Design Document",
+  "version": "2.1.0",
+  "author": "Architecture Team",
+  "created_date": "2024-01-10",
+  "services": [
+    {
+      "name": "user-service",
+      "description": "Handles user authentication, authorization, and profile management",
+      "technology": "Node.js + Express",
+      "database": "PostgreSQL",
+      "port": 3001,
+      "endpoints": ["/api/users", "/api/auth", "/api/profiles"]
+    },
+    {
+      "name": "order-service",
+      "description": "Manages order lifecycle from creation to fulfillment",
+      "technology": "Python + FastAPI",
+      "database": "PostgreSQL",
+      "port": 3002,
+      "endpoints": ["/api/orders", "/api/cart", "/api/checkout"]
+    },
+    {
+      "name": "notification-service",
+      "description": "Sends notifications via email, SMS, and push",
+      "technology": "Go",
+      "database": "Redis",
+      "port": 3003,
+      "endpoints": ["/api/notifications", "/api/templates"]
+    }
+  ],
+  "infrastructure": {
+    "container_orchestration": "Kubernetes",
+    "service_mesh": "Istio",
+    "ci_cd": "GitHub Actions + ArgoCD",
+    "monitoring": "Prometheus + Grafana",
+    "logging": "ELK Stack"
+  }
+}
