@@ -67,7 +67,7 @@ def store_event(
         event_type=event_type,
         message=message,
         progress_percent=progress_percent,
-        metadata=metadata or {},
+        event_metadata=metadata or {},
     )
     session.add(event)
     session.commit()

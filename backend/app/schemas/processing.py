@@ -28,7 +28,7 @@ class ProcessingEventResponse(BaseModel):
     event_type: str
     message: str
     progress_percent: int
-    metadata: Optional[dict] = None
+    event_metadata: Optional[dict] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

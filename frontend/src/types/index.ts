@@ -56,7 +56,7 @@ export interface ProcessingEvent {
   event_type: EventType;
   message: string;
   progress_percent: number;
-  metadata: Record<string, unknown>;
+  event_metadata: Record<string, unknown>;
   created_at: string;
 }
 
