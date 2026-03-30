@@ -87,7 +87,7 @@ def upgrade() -> None:
         sa.Column("event_type", event_type_enum, nullable=False),
         sa.Column("message", sa.Text(), nullable=False),
         sa.Column("progress_percent", sa.Integer(), default=0),
-        sa.Column("metadata", JSONB(), nullable=True),
+        sa.Column("event_metadata", JSONB(), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
 

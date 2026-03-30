@@ -47,7 +47,7 @@ class ProcessingEvent(Base):
     )
     message: Mapped[str] = mapped_column(Text, nullable=False)
     progress_percent: Mapped[int] = mapped_column(Integer, default=0)
-    metadata: Mapped[Optional[dict]] = mapped_column(
+    event_metadata: Mapped[Optional[dict]] = mapped_column(
         JSONB, default=dict, nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(
