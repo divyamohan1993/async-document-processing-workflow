@@ -1,0 +1,2 @@
+document_id,filename,file_type,file_size,status,title,category,summary,keywords,is_finalized,finalized_at
+550e8400-e29b-41d4-a716-446655440000,sample-report.txt,text/plain,1234,completed,Annual Technology Report 2024,Report,"This report provides a comprehensive overview of technology initiatives...","technology,cloud,migration,security",true,2024-01-15T11:00:00Z
