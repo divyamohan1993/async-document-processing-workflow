@@ -35,7 +35,7 @@ class DocumentService:
                 file_type=file_info["file_type"],
                 file_size=file_info["file_size"],
                 file_path=file_info["file_path"],
-                status=DocumentStatus.QUEUED,
+                status=DocumentStatus.queued,
             )
             self.db.add(document)
             await self.db.flush()
@@ -44,7 +44,7 @@ class DocumentService:
             # Create initial queued event
             event = ProcessingEvent(
                 document_id=document.id,
-                event_type=EventType.JOB_QUEUED,
+                event_type=EventType.job_queued,
                 message=f"Document '{file_info['original_filename']}' queued for processing",
                 progress_percent=0,
             )
@@ -56,6 +56,7 @@ class DocumentService:
             task = process_document.delay(str(document.id))
             document.celery_task_id = task.id
             await self.db.flush()
+            await self.db.refresh(document)
 
             documents.append(document)
 
@@ -164,7 +165,7 @@ class DocumentService:
     ) -> Document:
         document = await self.get_document(document_id, user_id)
 
-        if document.status != DocumentStatus.COMPLETED:
+        if document.status != DocumentStatus.completed:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Can only finalize completed documents",
@@ -193,20 +194,20 @@ class DocumentService:
     ) -> Document:
         document = await self.get_document(document_id, user_id)
 
-        if document.status != DocumentStatus.FAILED:
+        if document.status != DocumentStatus.failed:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Can only retry failed documents",
             )
 
-        document.status = DocumentStatus.QUEUED
+        document.status = DocumentStatus.queued
         document.error_message = None
         document.retry_count += 1
 
         # Create retry event
         event = ProcessingEvent(
             document_id=document.id,
-            event_type=EventType.JOB_QUEUED,
+            event_type=EventType.job_queued,
             message=f"Document retry #{document.retry_count} queued",
             progress_percent=0,
         )

@@ -23,14 +23,14 @@ if TYPE_CHECKING:
 
 
 class EventType(str, enum.Enum):
-    JOB_QUEUED = "job_queued"
-    JOB_STARTED = "job_started"
-    DOCUMENT_PARSING_STARTED = "document_parsing_started"
-    DOCUMENT_PARSING_COMPLETED = "document_parsing_completed"
-    FIELD_EXTRACTION_STARTED = "field_extraction_started"
-    FIELD_EXTRACTION_COMPLETED = "field_extraction_completed"
-    JOB_COMPLETED = "job_completed"
-    JOB_FAILED = "job_failed"
+    job_queued = "job_queued"
+    job_started = "job_started"
+    document_parsing_started = "document_parsing_started"
+    document_parsing_completed = "document_parsing_completed"
+    field_extraction_started = "field_extraction_started"
+    field_extraction_completed = "field_extraction_completed"
+    job_completed = "job_completed"
+    job_failed = "job_failed"
 
 
 class ProcessingEvent(Base):
@@ -43,7 +43,14 @@ class ProcessingEvent(Base):
         ForeignKey("documents.id"), nullable=False, index=True
     )
     event_type: Mapped[EventType] = mapped_column(
-        SQLAlchemyEnum(EventType), nullable=False
+        SQLAlchemyEnum(
+            EventType,
+            values_callable=lambda e: [x.value for x in e],
+            create_constraint=False,
+            native_enum=False,
+            length=50,
+        ),
+        nullable=False
     )
     message: Mapped[str] = mapped_column(Text, nullable=False)
     progress_percent: Mapped[int] = mapped_column(Integer, default=0)

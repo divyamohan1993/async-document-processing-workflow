@@ -27,10 +27,10 @@ if TYPE_CHECKING:
 
 
 class DocumentStatus(str, enum.Enum):
-    QUEUED = "queued"
-    PROCESSING = "processing"
-    COMPLETED = "completed"
-    FAILED = "failed"
+    queued = "queued"
+    processing = "processing"
+    completed = "completed"
+    failed = "failed"
 
 
 class Document(Base):
@@ -48,7 +48,14 @@ class Document(Base):
     file_size: Mapped[int] = mapped_column(BigInteger, nullable=False)
     file_path: Mapped[str] = mapped_column(String(1000), nullable=False)
     status: Mapped[DocumentStatus] = mapped_column(
-        SQLAlchemyEnum(DocumentStatus), default=DocumentStatus.QUEUED, index=True
+        SQLAlchemyEnum(
+            DocumentStatus,
+            values_callable=lambda e: [x.value for x in e],
+            create_constraint=False,
+            native_enum=False,
+            length=20,
+        ),
+        default=DocumentStatus.queued, index=True
     )
     celery_task_id: Mapped[Optional[str]] = mapped_column(
         String(255), nullable=True
