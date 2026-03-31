@@ -19,18 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Create enum types
-    document_status_enum = sa.Enum(
-        "queued", "processing", "completed", "failed",
-        name="documentstatus",
-    )
-    event_type_enum = sa.Enum(
-        "job_queued", "job_started",
-        "document_parsing_started", "document_parsing_completed",
-        "field_extraction_started", "field_extraction_completed",
-        "job_completed", "job_failed",
-        name="eventtype",
-    )
+    # Using VARCHAR instead of native enums for cross-engine compatibility
 
     # Users table
     op.create_table(
@@ -54,7 +43,7 @@ def upgrade() -> None:
         sa.Column("file_type", sa.String(100), nullable=False),
         sa.Column("file_size", sa.BigInteger(), nullable=False),
         sa.Column("file_path", sa.String(1000), nullable=False),
-        sa.Column("status", document_status_enum, default="queued", index=True),
+        sa.Column("status", sa.String(20), default="queued", index=True),
         sa.Column("celery_task_id", sa.String(255), nullable=True),
         sa.Column("error_message", sa.Text(), nullable=True),
         sa.Column("retry_count", sa.Integer(), default=0),
@@ -84,7 +73,7 @@ def upgrade() -> None:
         "processing_events",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column("document_id", UUID(as_uuid=True), sa.ForeignKey("documents.id"), nullable=False, index=True),
-        sa.Column("event_type", event_type_enum, nullable=False),
+        sa.Column("event_type", sa.String(50), nullable=False),
         sa.Column("message", sa.Text(), nullable=False),
         sa.Column("progress_percent", sa.Integer(), default=0),
         sa.Column("event_metadata", JSONB(), nullable=True),

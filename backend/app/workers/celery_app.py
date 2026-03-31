@@ -19,12 +19,12 @@ celery_app.conf.update(
     task_reject_on_worker_lost=True,
     task_track_started=True,
     task_routes={
-        "app.workers.tasks.process_document": {"queue": "document_processing"},
+        "app.workers.tasks.process_document": {"queue": "documents"},
     },
     task_default_queue="default",
     task_queues={
         "default": {},
-        "document_processing": {},
+        "documents": {},
     },
 )
 

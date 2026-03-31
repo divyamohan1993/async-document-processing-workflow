@@ -92,26 +92,26 @@ def process_document(self, document_id: str) -> dict:
             raise ValueError(f"Document {document_id} not found")
 
         # ---- Stage 1: Job Started (0%) ----
-        document.status = DocumentStatus.PROCESSING
+        document.status = DocumentStatus.processing
         session.commit()
 
         store_event(
-            session, doc_uuid, EventType.JOB_STARTED,
+            session, doc_uuid, EventType.job_started,
             "Processing job started", 0,
         )
         publish_progress(
-            document_id, EventType.JOB_STARTED.value,
+            document_id, EventType.job_started.value,
             "Processing job started", 0,
         )
         time.sleep(0.5)
 
         # ---- Stage 2: Document Parsing Started (15%) ----
         store_event(
-            session, doc_uuid, EventType.DOCUMENT_PARSING_STARTED,
+            session, doc_uuid, EventType.document_parsing_started,
             "Reading and parsing document", 15,
         )
         publish_progress(
-            document_id, EventType.DOCUMENT_PARSING_STARTED.value,
+            document_id, EventType.document_parsing_started.value,
             "Reading and parsing document", 15,
         )
         time.sleep(1.0)
@@ -121,13 +121,13 @@ def process_document(self, document_id: str) -> dict:
         text_length = len(raw_text) if raw_text else 0
 
         store_event(
-            session, doc_uuid, EventType.DOCUMENT_PARSING_COMPLETED,
+            session, doc_uuid, EventType.document_parsing_completed,
             f"Document parsed successfully. Extracted {text_length} characters.",
             35,
             metadata={"text_length": text_length},
         )
         publish_progress(
-            document_id, EventType.DOCUMENT_PARSING_COMPLETED.value,
+            document_id, EventType.document_parsing_completed.value,
             f"Document parsed successfully. Extracted {text_length} characters.",
             35,
             metadata={"text_length": text_length},
@@ -136,11 +136,11 @@ def process_document(self, document_id: str) -> dict:
 
         # ---- Stage 4: Field Extraction Started (50%) ----
         store_event(
-            session, doc_uuid, EventType.FIELD_EXTRACTION_STARTED,
+            session, doc_uuid, EventType.field_extraction_started,
             "Extracting structured fields from document", 50,
         )
         publish_progress(
-            document_id, EventType.FIELD_EXTRACTION_STARTED.value,
+            document_id, EventType.field_extraction_started.value,
             "Extracting structured fields from document", 50,
         )
         time.sleep(1.0)
@@ -178,7 +178,7 @@ def process_document(self, document_id: str) -> dict:
         session.commit()
 
         store_event(
-            session, doc_uuid, EventType.FIELD_EXTRACTION_COMPLETED,
+            session, doc_uuid, EventType.field_extraction_completed,
             f"Extracted fields: title='{title}', category='{category}', {len(keywords)} keywords",
             75,
             metadata={
@@ -188,7 +188,7 @@ def process_document(self, document_id: str) -> dict:
             },
         )
         publish_progress(
-            document_id, EventType.FIELD_EXTRACTION_COMPLETED.value,
+            document_id, EventType.field_extraction_completed.value,
             f"Extracted fields: title='{title}', category='{category}', {len(keywords)} keywords",
             75,
             metadata={
@@ -200,16 +200,16 @@ def process_document(self, document_id: str) -> dict:
         time.sleep(0.5)
 
         # ---- Stage 6: Job Completed (100%) ----
-        document.status = DocumentStatus.COMPLETED
+        document.status = DocumentStatus.completed
         document.error_message = None
         session.commit()
 
         store_event(
-            session, doc_uuid, EventType.JOB_COMPLETED,
+            session, doc_uuid, EventType.job_completed,
             "Document processing completed successfully", 100,
         )
         publish_progress(
-            document_id, EventType.JOB_COMPLETED.value,
+            document_id, EventType.job_completed.value,
             "Document processing completed successfully", 100,
         )
 
@@ -227,17 +227,17 @@ def process_document(self, document_id: str) -> dict:
         try:
             document = session.query(Document).filter(Document.id == doc_uuid).first()
             if document:
-                document.status = DocumentStatus.FAILED
+                document.status = DocumentStatus.failed
                 document.error_message = str(exc)[:1000]
                 session.commit()
 
                 store_event(
-                    session, doc_uuid, EventType.JOB_FAILED,
+                    session, doc_uuid, EventType.job_failed,
                     f"Processing failed: {str(exc)[:500]}", 0,
                     metadata={"error": str(exc)[:1000]},
                 )
                 publish_progress(
-                    document_id, EventType.JOB_FAILED.value,
+                    document_id, EventType.job_failed.value,
                     f"Processing failed: {str(exc)[:500]}", 0,
                     metadata={"error": str(exc)[:1000]},
                 )

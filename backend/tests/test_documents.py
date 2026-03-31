@@ -16,7 +16,7 @@ from app.models.user import User
 async def _create_document(
     db_session: AsyncSession,
     user_id: uuid.UUID,
-    status: DocumentStatus = DocumentStatus.COMPLETED,
+    status: DocumentStatus = DocumentStatus.completed,
     original_filename: str = "test.txt",
     file_type: str = "txt",
     with_result: bool = True,
@@ -51,7 +51,7 @@ async def _create_document(
 
     event = ProcessingEvent(
         document_id=doc.id,
-        event_type=EventType.JOB_QUEUED,
+        event_type=EventType.job_queued,
         message="Queued",
         progress_percent=0,
     )
@@ -151,7 +151,7 @@ async def test_list_documents_with_status_filter(
     test_user: User,
     db_session: AsyncSession,
 ):
-    await _create_document(db_session, test_user.id, status=DocumentStatus.FAILED)
+    await _create_document(db_session, test_user.id, status=DocumentStatus.failed)
 
     response = await client.get(
         "/api/v1/documents?status=failed",
@@ -239,7 +239,7 @@ async def test_finalize_document(
     test_user: User,
     db_session: AsyncSession,
 ):
-    doc = await _create_document(db_session, test_user.id, status=DocumentStatus.COMPLETED)
+    doc = await _create_document(db_session, test_user.id, status=DocumentStatus.completed)
 
     response = await client.post(
         f"/api/v1/documents/{doc.id}/finalize", headers=auth_headers
@@ -257,7 +257,7 @@ async def test_finalize_non_completed_fails(
     test_user: User,
     db_session: AsyncSession,
 ):
-    doc = await _create_document(db_session, test_user.id, status=DocumentStatus.QUEUED)
+    doc = await _create_document(db_session, test_user.id, status=DocumentStatus.queued)
 
     response = await client.post(
         f"/api/v1/documents/{doc.id}/finalize", headers=auth_headers
@@ -272,7 +272,7 @@ async def test_retry_failed_document(
     test_user: User,
     db_session: AsyncSession,
 ):
-    doc = await _create_document(db_session, test_user.id, status=DocumentStatus.FAILED)
+    doc = await _create_document(db_session, test_user.id, status=DocumentStatus.failed)
 
     response = await client.post(
         f"/api/v1/documents/{doc.id}/retry", headers=auth_headers
@@ -290,7 +290,7 @@ async def test_retry_non_failed_fails(
     test_user: User,
     db_session: AsyncSession,
 ):
-    doc = await _create_document(db_session, test_user.id, status=DocumentStatus.COMPLETED)
+    doc = await _create_document(db_session, test_user.id, status=DocumentStatus.completed)
 
     response = await client.post(
         f"/api/v1/documents/{doc.id}/retry", headers=auth_headers
@@ -307,7 +307,7 @@ async def test_export_json(
 ):
     await _create_document(
         db_session, test_user.id,
-        status=DocumentStatus.COMPLETED,
+        status=DocumentStatus.completed,
         is_finalized=True,
     )
 
@@ -327,7 +327,7 @@ async def test_export_csv(
 ):
     await _create_document(
         db_session, test_user.id,
-        status=DocumentStatus.COMPLETED,
+        status=DocumentStatus.completed,
         is_finalized=True,
     )
 
@@ -347,7 +347,7 @@ async def test_export_no_finalized_documents(
 ):
     await _create_document(
         db_session, test_user.id,
-        status=DocumentStatus.COMPLETED,
+        status=DocumentStatus.completed,
         is_finalized=False,
     )
 
