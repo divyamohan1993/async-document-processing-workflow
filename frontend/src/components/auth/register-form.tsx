@@ -61,7 +61,7 @@ export function RegisterForm() {
             </Label>
             <Input
               id="full_name"
-              placeholder="Rijul Chaudhary"
+              placeholder="Divya Mohan"
               autoComplete="name"
               className="h-10"
               {...register('full_name')}
