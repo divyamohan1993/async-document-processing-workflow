@@ -96,12 +96,12 @@ class ApiClient {
       const results: Document[] = [];
       for (const file of files) {
         const formData = new FormData();
-        formData.append('file', file);
-        const doc = await this.request<Document>('/documents/upload', {
+        formData.append('files', file);
+        const docs = await this.request<Document[]>('/documents/upload', {
           method: 'POST',
           body: formData,
         });
-        results.push(doc);
+        results.push(...docs);
       }
       return results;
     },
