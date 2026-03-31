@@ -43,16 +43,19 @@ async def register(
     )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=AuthResponse)
 @limiter.limit("5/minute")
 async def login(
     request: Request,
     body: UserLoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-) -> TokenResponse:
+) -> AuthResponse:
     service = AuthService(db)
-    token = await service.login(email=body.email, password=body.password)
-    return TokenResponse(access_token=token)
+    user, token = await service.login(email=body.email, password=body.password)
+    return AuthResponse(
+        user=UserResponse.model_validate(user),
+        access_token=token,
+    )
 
 
 @router.get("/me", response_model=UserResponse)

@@ -34,7 +34,7 @@ class AuthService:
         token = create_access_token(subject=str(user.id))
         return user, token
 
-    async def login(self, email: str, password: str) -> str:
+    async def login(self, email: str, password: str) -> tuple[User, str]:
         result = await self.db.execute(select(User).where(User.email == email))
         user = result.scalar_one_or_none()
         if user is None or not verify_password(password, user.hashed_password):
@@ -47,4 +47,5 @@ class AuthService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Account is deactivated",
             )
-        return create_access_token(subject=str(user.id))
+        token = create_access_token(subject=str(user.id))
+        return user, token

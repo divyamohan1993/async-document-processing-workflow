@@ -82,18 +82,11 @@ class ApiClient {
         body: JSON.stringify(data),
       }),
 
-    login: (data: LoginRequest): Promise<AuthResponse> => {
-      const formData = new URLSearchParams();
-      formData.append('username', data.email);
-      formData.append('password', data.password);
-      return this.request<AuthResponse>('/auth/login', {
+    login: (data: LoginRequest): Promise<AuthResponse> =>
+      this.request<AuthResponse>('/auth/login', {
         method: 'POST',
-        body: formData.toString(),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-    },
+        body: JSON.stringify(data),
+      }),
 
     me: (): Promise<User> => this.request<User>('/auth/me'),
   };
