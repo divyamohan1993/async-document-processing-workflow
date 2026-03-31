@@ -8,13 +8,20 @@ import { Activity } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { token, checkAuth, logout } = useAuthStore();
 
   useEffect(() => {
     if (token) {
-      router.replace('/dashboard');
+      // Validate the existing token before redirecting
+      checkAuth().then(() => {
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser) {
+          router.replace('/dashboard');
+        }
+        // If checkAuth failed, the store already cleared token/user
+      });
     }
-  }, [token, router]);
+  }, [token, checkAuth, router]);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4 bg-grid">
