@@ -50,12 +50,16 @@ class DocumentService:
             )
             self.db.add(event)
 
+            # Commit to DB BEFORE dispatching Celery task
+            # so the worker can find the document
+            await self.db.commit()
+
             # Dispatch Celery task
             from app.workers.tasks import process_document
 
             task = process_document.delay(str(document.id))
             document.celery_task_id = task.id
-            await self.db.flush()
+            await self.db.commit()
             await self.db.refresh(document)
 
             documents.append(document)
